@@ -2,13 +2,16 @@
 --- MOD_NAME: SpicyJokers
 --- MOD_ID: SpicyJokers
 --- MOD_AUTHOR: [Richard]
---- MOD_DESCRIPTION: This mod doesnt do anything YET
+--- MOD_DESCRIPTION: This mod adds two new jokers as of right now
 --- BADGE_COLOUR: C9A926
 
 ----------------------------------------------
 ------------MOD CODE -------------------------
 
+G.localization.misc.dictionary["k_lucky"] = "Lucky"
+
 function SMODS.INIT.SpicyJokers()
+    local seven = false;
     local joker_sprites = SMODS.Sprite:new('new_jokers', SMODS.findModByID("SpicyJokers").path, "sprites.png", 71, 95, "asset_atli")
     joker_sprites:register()
 
@@ -25,11 +28,28 @@ function SMODS.INIT.SpicyJokers()
             },
             pos = {x = 0, y = 0}, -- POSITION IN SPRITE SHEET
             rarity = 1,
-            cost = 4,
+            cost = 3,
             loc_def = function(card) return {
                 card.ability.extra} end,
             blueprint_compat = true,
             eternal_compat = true
+        },
+        {
+            name = "Lucky Seven",
+            slug = 'ssj_lucky_seven',
+            desc = {
+                "All Scored cards played with a {C:attention}7{}",
+                "become {C:attention}Lucky{} cards"
+            },
+            config = {
+                extra = 3
+            },
+            pos = {x = 1, y = 0}, -- POSITION IN SPRITE SHEET
+            rarity = 2,
+            cost = 4,
+            blueprint_compat = false,
+            eternal_compat = true
+
         }
     }
 
@@ -78,6 +98,61 @@ function SMODS.INIT.SpicyJokers()
             }
         end
     end
+    SMODS.Jokers.j_ssj_lucky_seven.calculate = function(self, context)
+        if context.before and  context.cardarea == G.jokers then
+            seven = false;
+            for i = 1, #context.scoring_hand do
+                if context.scoring_hand[i]:get_id() == 7 then seven = true end
+            end
+        end
+        if not context.repetition and not context.other_joker and context.cardarea == G.jokers and context.before then
+            if seven then
+                for k, v in ipairs(context.scoring_hand) do
+                    v:set_ability(G.P_CENTERS.m_lucky, nil, true)
+                    G.E_MANAGER:add_event(Event({
+                        func = function()
+                            v:juice_up()
+                            return true
+                        end
+                    })) 
+                end
+                return {
+                    message = localize('k_lucky'),
+                    colour = G.C.MONEY,
+                    card = self
+                }
+            end
+        end
+
+    end
+
+    -- DECK FOR TESTING
+
+    SMODS.Deck:new("test Deck", "ssj_test", { test = true, atlas = "b_mf_grosmichel" }, { x = 0, y = 0 }, {
+        name = "test Deck",
+        text = {
+            "Testing deck to test stuff I add{C:attention} yeaaaa"
+        }
+    })
+    :register()
+    local Back_apply_to_run_ref = Back.apply_to_run
+    function Back.apply_to_run(arg)
+        Back_apply_to_run_ref(arg)
+    
+        -- Gros Michel Deck
+        if arg.effect.config.test then
+            G.E_MANAGER:add_event(Event({
+                func = function()
+                    local card = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_ssj_lucky_seven', nil)
+                    card:add_to_deck()
+                    G.jokers:emplace(card)
+                    return true
+                end
+            }))
+        end
+    end
 end
+
+
 ----------------------------------------------
 ------------MOD CODE END----------------------
