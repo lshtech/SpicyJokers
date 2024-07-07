@@ -2,7 +2,7 @@
 --- MOD_NAME: SpicyJokers
 --- MOD_ID: SpicyJokers
 --- MOD_AUTHOR: [Richard]
---- MOD_DESCRIPTION: This mod adds 4 new jokers with unique art and abilities
+--- MOD_DESCRIPTION: This mod doesnt do anything YET
 --- BADGE_COLOUR: C9A926
 
 ----------------------------------------------
@@ -10,14 +10,36 @@
 
 G.localization.misc.dictionary["k_lucky"] = "Lucky"
 
+local Card_add_to_deck_ref = Card.add_to_deck 
+function Card.add_to_deck(self, from_debuff)
+    if self.ability.name == "Antimatter Joker" then
+        if G.jokers then 
+            G.jokers.config.card_limit = G.jokers.config.card_limit + 2
+        end
+    end
+end
+
+local Card_remove_from_deck_ref = Card.remove_from_deck 
+function Card.remove_from_deck(self, from_debuff)
+    if self.ability.name == "Antimatter Joker" then
+        if G.jokers then 
+            G.jokers.config.card_limit = G.jokers.config.card_limit - 2
+        end
+    end
+end
+
+
+
 function SMODS.INIT.SpicyJokers()
     local seven = false;
+    local usedConsumables = {};
+
     local joker_sprites = SMODS.Sprite:new('new_jokers', SMODS.findModByID("SpicyJokers").path, "sprites.png", 71, 95, "asset_atli")
     joker_sprites:register()
 
     local jokers = { -- Local Joker variables
         {
-            name = "Gun Joker",
+            name = "Edward Gun",
             slug = 'ssj_gun_joker',
             desc = {
                 "{X:red,C:white}X#1#{} Mult on {C:attention}first",
@@ -64,8 +86,8 @@ function SMODS.INIT.SpicyJokers()
                 extra = 3
             },
             pos = {x = 2, y = 0}, -- POSITION IN SPRITE SHEET
-            rarity = 2,
-            cost = 6,
+            rarity = 1,
+            cost = 5,
             blueprint_compat = true,
             eternal_compat = false
 
@@ -87,6 +109,116 @@ function SMODS.INIT.SpicyJokers()
             blueprint_compat = true,
             eternal_compat = false
 
+        },
+        {
+            name = "Joker Squad",
+            slug = 'ssj_joker_squad',
+            desc = {
+                "{C:chips}+30{} Chips for,",
+                "each {C:attention}Joker{} card",
+                "{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips)"
+            },
+            pos = {x = 4, y = 0}, -- POSITION IN SPRITE SHEET
+            rarity = 1,
+            cost = 5,
+            config = {
+                extra = 30
+            },
+            loc_def = function(card) return {(G.jokers and G.jokers.cards and #G.jokers.cards or 0)*30} end,
+
+            blueprint_compat = true,
+            eternal_compat = false
+
+        }
+        ,
+        {
+            name = "Antimatter Joker",
+            slug = 'ssj_antimatter_joker',
+            desc = {
+                "{C:dark_edition}+2{} Joker Slots"
+            },
+            pos = {x = 5, y = 0}, -- POSITION IN SPRITE SHEET
+            rarity = 3,
+            cost = 12,
+            config = {
+            },
+            blueprint_compat = false,
+            eternal_compat = false
+
+        }
+        ,
+        {
+            name = "Misfire",
+            slug = 'ssj_misfire',
+            desc = {
+                "{C:green}#1# in #2#{} chance for",
+                "{X:red,C:white} X5 {} Mult"
+            },
+            pos = {x = 6, y = 0}, -- POSITION IN SPRITE SHEET
+            rarity = 1,
+            cost = 4,
+            config = { extra = 5
+            },
+            loc_def =function(card) return {
+                G.GAME.probabilities.normal, 
+                card.ability.extra} end,
+            blueprint_compat = true,
+            eternal_compat = false
+
+        }
+        ,
+        {
+            name = "Gnarled Throne",
+            slug = 'ssj_gnarled_throne',
+            desc = {
+                "{C:mult}+2{} Mult for each",
+                "{C:attention}Unique{} consumable card",
+                "used this run",
+                "{C:inactive}(Currently {C:mult}+#1#{C:inactive} Mult)",
+            },
+            pos = {x = 7, y = 0}, -- POSITION IN SPRITE SHEET
+            rarity = 1,
+            cost = 4,
+            config = { extra = 0
+            },
+            loc_def =function(card) return {
+                (G.GAME.consumeable_usage and G.GAME.consumeable_usage.all or 0)} end,
+            blueprint_compat = true,
+            eternal_compat = false
+        }
+        ,
+        {
+            name = "Shocked and Rattled",
+            slug = 'ssj_snr',
+            desc = {
+                "Doesnt do anything",
+            },
+            pos = {x = 9, y = 0}, -- POSITION IN SPRITE SHEET
+            rarity = 1,
+            cost = 4,
+            config = { extra = 0
+            },
+            loc_def =function(card) return { 
+                } end,
+            blueprint_compat = true,
+            eternal_compat = false
+        }
+        ,
+        {
+            name = "Sisyphus",
+            slug = 'ssj_snr',
+            desc = {
+                "Doesnt do anything",
+            },
+            pos = {x = 10, y = 0}, -- POSITION IN SPRITE SHEET
+            rarity = 1,
+            cost = 4,
+            config = { extra = 0
+            },
+            loc_def =function(card) return { 
+                } end,
+            blueprint_compat = true,
+            eternal_compat = false
         }
     }
 
@@ -126,6 +258,7 @@ function SMODS.INIT.SpicyJokers()
     Card.load = function(self, cardTable, other_card)
         card_load_ref(self, cardTable, other_card)
     end
+
 
     SMODS.Jokers.j_ssj_gun_joker.calculate = function(self, context)
         if context.joker_main and G.GAME.current_round.hands_played == 0 then
@@ -203,6 +336,63 @@ function SMODS.INIT.SpicyJokers()
         end
     end
 
+    SMODS.Jokers.j_ssj_joker_squad.calculate = function(self, context)
+        if context.joker_main then
+            local x = 0
+            for i = 1, #G.jokers.cards do
+                if G.jokers.cards[i].ability.set == 'Joker' then 
+                    x = x + 1 
+                end
+            end
+            return {
+                message = localize{type = 'variable', key = 'a_chips', vars = {self.ability.extra * x}},
+                chip_mod = self.ability.extra * x, 
+                colour = G.C.CHIPS
+            }
+        end
+    end
+
+    SMODS.Jokers.j_ssj_misfire.calculate = function(self, context)
+        if context.joker_main then
+            if pseudorandom('misfire') < G.GAME.probabilities.normal/self.ability.extra then
+                return {
+                    message = localize{type = 'variable', key = 'a_xmult',vars = {self.ability.extra}},
+                    Xmult_mod = 5
+                }
+            end
+        end
+    end
+
+    SMODS.Jokers.j_ssj_gnarled_throne.calculate = function(self, context)
+        
+        --if (context.playing_card_added and self.ability.set == "Joker" and not self.debuff and context.cards and context.cards[1]) then
+        --    self.ability.extra = self.ability.extra + #context.cards
+        --    card_eval_status_text(self, 'extra', nil, nil, nil, {message = localize{type = 'variable', key = 'a_mult', vars = {self.ability.extra}}})
+        --end
+        
+        --if ((context.remove_playing_cards or context.destroying_card) and context.destroyed_cards and context.destroyed_cards[1] ) then 
+        --    self.ability.extra = self.ability.extra + #context.destroyed_cards
+        --    card_eval_status_text(self, 'extra', nil, nil, nil, {message = localize{type = 'variable', key = 'a_mult', vars = {self.ability.extra}}})
+        --end
+
+        -- if G.GAME.consumeable_usage_total and G.GAME.consumeable_usage_total.all and G.GAME.consumeable_usage_total.all > 0 then
+        --     return {
+        --        message = localize{type='variable',key='a_mult',vars={G.GAME.consumeable_usage.all}},
+        --        mult_mod = G.GAME.consumeable_usage.all
+        --    }
+        --end
+        --if context.joker_main then 
+        --    return {
+        --        message = localize{type = 'variable', key = 'a_mult',vars = {self.ability.extra}},
+        --        mult_mod = self.ability.extra
+        --    }
+        --end
+
+
+    end
+
+
+
     -- DECK FOR TESTING
 
     SMODS.Deck:new("test Deck", "ssj_test", { test = true, atlas = "b_mf_grosmichel" }, { x = 0, y = 0 }, {
@@ -226,17 +416,28 @@ function SMODS.INIT.SpicyJokers()
                     local card = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_ssj_business_joker', nil)
                     card:add_to_deck()
                     G.jokers:emplace(card)
-                    local card = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_ssj_gun_joker', nil)
-                    card:add_to_deck()
-                    G.jokers:emplace(card)
                     local card = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_ssj_void', nil)
                     card:add_to_deck()
                     G.jokers:emplace(card)
+                    local card = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_ssj_joker_squad', nil)
+                    card:add_to_deck()
+                    G.jokers:emplace(card)
+                    local card = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_ssj_antimatter_joker', nil)
+                    card:add_to_deck()
+                    G.jokers:emplace(card)
+                    local card = create_card('Joker', G.jokers, nil, nil, nil, nil, 'j_ssj_gnarled_throne', nil)
+                    card:add_to_deck()
+                    G.jokers:emplace(card)
+                    local card = create_card(nil,G.consumeables, nil, nil, nil, nil, 'c_hanged_man', 'sup')
+                    card:add_to_deck()
+                    G.consumeables:emplace(card)
                     return true
                 end
             }))
         end
     end
+
+
 end
 
 
