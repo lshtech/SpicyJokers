@@ -172,10 +172,10 @@ SMODS.Joker{
 
 }
 SMODS.Joker{
-    name = "Void",
+    name = "Sagittarius A*",
     key = 'void',
     loc_txt = { 
-        name = "Void",
+        name = "Sagittarius A*",
         text = {
             "When {C:attention}blind{} is selected,",
             "Create a {C:spectral}Black Hole{} card",
@@ -339,6 +339,9 @@ SMODS.Joker{
     calculate = function(self, card, context)
         if context.selling_card then
             card.ability.extra = card.ability.extra +1
+            G.E_MANAGER:add_event(Event({
+                func = function() card_eval_status_text(card, 'extra', nil, nil, nil, {message = localize{type='variable',key='a_mult',vars={card.ability.extra}}}); return true
+                end}))
         end
         if context.joker_main and card.ability.extra > 0 then
             return {
@@ -356,19 +359,56 @@ SMODS.Joker{
     loc_txt = { 
         name = "Shocked and Rattled",
         text = {
-            "In development",
+            "{C:mult}+5{} Mult for each",
+            "{C:attention}#1#{} Discarded",
+            "{C:attention}poker hand{} changes",
+            "At the end of the round",
+            "{C:inactive}(Currently {C:mult}+#2#{C:inactive} Mult)",
         },
     },
     pos = {x = 8, y = 0}, -- POSITION IN SPRITE SHEET
     rarity = 1,
-    cost = 4,
-    config = { extra = 0
+    cost = 5,
+    config = { to_do_poker_hand = "High Card",extra = 0
     },
-        ---loc_vars =function(card) return { } end,
+    loc_vars =function(self,info_queue, card) return {vars = {localize(card.ability.to_do_poker_hand, 'poker_hands'), card.ability.extra}} end,
+    set_ability = function(self,card, initial, delay_sprites)
+        local _poker_hands = {}
+        for k, v in pairs(G.GAME.hands) do
+            if v.visible then _poker_hands[#_poker_hands+1] = k end
+        end
+        
+        local old_hand = card.ability.to_do_poker_hand
+        card.ability.to_do_poker_hand = nil
+        while not card.ability.to_do_poker_hand do
+            card.ability.to_do_poker_hand = pseudorandom_element(_poker_hands, pseudoseed("snr"))
+            if card.ability.to_do_poker_hand == old_hand then card.ability.to_do_poker_hand = nil end
+        end
+    end,
     blueprint_compat = true,
     eternal_compat = false,
     discovered = true,
-    atlas = "spicy_jokers"
+    atlas = "spicy_jokers",
+    calculate = function(self, card, context)
+        if context.pre_discard then
+            local text,disp_text = G.FUNCS.get_poker_hand_info(G.hand.highlighted)
+            if disp_text == card.ability.to_do_poker_hand then
+                card.ability.extra = card.ability.extra + 5
+                G.E_MANAGER:add_event(Event({
+                    func = function() card_eval_status_text(card, 'extra', nil, nil, nil, {message = localize{type='variable',key='a_mult',vars={"SHOCKED"}}}); return true
+                    end}))
+            end
+        end
+        if context.joker_main and card.ability.extra > 0 then
+            return {
+                message = localize{type='variable',key='a_mult',vars={card.ability.extra}},
+                mult_mod = card.ability.extra,
+                colour = G.C.MULT
+            }
+        end
+    end
+
+
 }
 
 SMODS.Joker{
@@ -377,19 +417,29 @@ SMODS.Joker{
     loc_txt = { 
         name = "Sisyphus",
         text = {
-            "In development",
+            "Played {C:attention}Stone Cards{}",
+            "give {X:red,C:white} X1.5{} Mult"
         },
     },
     pos = {x = 9, y = 0}, -- POSITION IN SPRITE SHEET
     rarity = 1,
-    cost = 4,
-    config = { extra = 0
+    cost = 5,
+    config = { extra = 1.5
     },
         ---loc_vars =function(card) return { } end,
+    
     blueprint_compat = true,
     eternal_compat = false,
     discovered = true,
-    atlas = "spicy_jokers"
+    atlas = "spicy_jokers",
+    calculate = function(self, card, context)
+        if   context.cardarea == G.play  and context.individual and context.other_card.ability.effect == "Stone Card" then
+                    return {
+                        x_mult = card.ability.extra,
+                        card = card
+                    }
+                end
+    end,
 }
 
 
@@ -446,6 +496,11 @@ SMODS.Back{
                 add_joker("j_ssj_antimatter_joker", nil, false, false)
                 add_joker("j_ssj_gnarled_throne", nil, false, false)
                 add_joker("j_ssj_misfire", nil, false, false)
+                add_joker("j_ssj_sus", nil, false, false)
+                add_joker("j_ssj_snr", nil, false, false)
+                local c = create_card(nil,G.consumeables, nil, nil, nil, nil, 'c_tower', 'sup')
+                                c:add_to_deck()
+                                G.consumeables:emplace(c)
                 return true
             end
         }))
