@@ -16,24 +16,6 @@ local config = {
 }
 G.localization.misc.dictionary["k_lucky"] = "Lucky"
 
-local Card_add_to_deck_ref = Card.add_to_deck 
-function Card.add_to_deck(self, from_debuff)
-    if self.ability.name == "Antimatter Joker" then
-        if G.jokers then 
-            G.jokers.config.card_limit = G.jokers.config.card_limit + 2
-        end
-    end
-end
-
-local Card_remove_from_deck_ref = Card.remove_from_deck 
-function Card.remove_from_deck(self, from_debuff)
-    if self.ability.name == "Antimatter Joker" then
-        if G.jokers then 
-            G.jokers.config.card_limit = G.jokers.config.card_limit - 2
-        end
-    end
-end
-
 
 local seven = false;
 local usedConsumables = {};
@@ -280,8 +262,17 @@ SMODS.Joker{
     blueprint_compat = false,
     eternal_compat = false,
     discovered = true,
-    atlas = "spicy_jokers"
-
+    atlas = "spicy_jokers",
+    add_to_deck = function(from_debuff)
+        if G.jokers then
+            G.jokers.config.card_limit = G.jokers.config.card_limit + 2
+        end
+    end,
+    remove_from_deck = function(from_debuff)
+        if G.jokers then
+            G.jokers.config.card_limit = G.jokers.config.card_limit - 2
+        end
+    end
 }
 SMODS.Joker{
     name = "Misfire",
