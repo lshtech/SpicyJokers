@@ -20,6 +20,11 @@ G.localization.misc.dictionary["k_lucky"] = "Lucky"
 local seven = false;
 local usedConsumables = {};
 
+-- JokerDisplay mod integration
+if SMODS.Mods["JokerDisplay"] then
+    NFS.load(SMODS.current_mod.path .. "/JokerDisplayIntegration.lua")()
+end
+
 SMODS.Atlas{
     key = "spicy_jokers",
     path = "sprites.png",
