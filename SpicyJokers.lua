@@ -1,14 +1,19 @@
 --- STEAMODDED HEADER
 --- MOD_NAME: SpicyJokers
 --- MOD_ID: SpicyJokers
---- MOD_AUTHOR: [Richard]
---- MOD_DESCRIPTION: This mod doesnt do anything YET
+--- MOD_AUTHOR: [Toasterobot]
+--- MOD_DESCRIPTION: This mod adds 10 New jokers with unique art
 --- PREFIX: ssj
---- BADGE_COLOUR: 125133
+--- BADGE_COLOUR: 8B52A9
 
 ----------------------------------------------
 ------------MOD CODE -------------------------
 
+local config = {
+
+    debug = false;
+
+}
 G.localization.misc.dictionary["k_lucky"] = "Lucky"
 
 local Card_add_to_deck_ref = Card.add_to_deck 
@@ -57,8 +62,8 @@ SMODS.Joker{
         extra = 3
     },
     pos = {x = 0, y = 0}, -- POSITION IN SPRITE SHEET
-    rarity = 1,
-    cost = 3,
+    rarity = 2,
+    cost = 6,
     loc_vars = function(self, info_queue, card)
         return {vars = {card.ability.extra}} end,
     blueprint_compat = true,
@@ -93,7 +98,7 @@ SMODS.Joker{
     },
     pos = {x = 1, y = 0}, -- POSITION IN SPRITE SHEET
     rarity = 2,
-    cost = 4,
+    cost = 7,
     blueprint_compat = false,
     eternal_compat = true,
     discovered = true,
@@ -145,7 +150,7 @@ SMODS.Joker{
         },
         pos = {x = 2, y = 0}, -- POSITION IN SPRITE SHEET
         rarity = 1,
-        cost = 5,
+        cost = 4,
         blueprint_compat = true,
         eternal_compat = false,
         discovered = true,
@@ -188,7 +193,7 @@ SMODS.Joker{
     },
     pos = {x = 3, y = 0}, -- POSITION IN SPRITE SHEET
     rarity = 2,
-    cost = 6,
+    cost = 5,
     blueprint_compat = true,
     eternal_compat = false,
     discovered = true,
@@ -228,7 +233,7 @@ SMODS.Joker{
     },
     pos = {x = 4, y = 0}, -- POSITION IN SPRITE SHEET
     rarity = 1,
-    cost = 5,
+    cost = 3,
     config = {
         extra = 30
     },
@@ -269,7 +274,7 @@ SMODS.Joker{
     },
     pos = {x = 5, y = 0}, -- POSITION IN SPRITE SHEET
     rarity = 3,
-    cost = 12,
+    cost = 10,
     config = {
     },
     blueprint_compat = false,
@@ -327,7 +332,7 @@ SMODS.Joker{
     },
     pos = {x = 7, y = 0}, -- POSITION IN SPRITE SHEET
     rarity = 1,
-    cost = 4,
+    cost = 3,
     config = { extra = 0
     },
     loc_vars =function(self,info_queue,card) return {
@@ -368,7 +373,7 @@ SMODS.Joker{
     },
     pos = {x = 8, y = 0}, -- POSITION IN SPRITE SHEET
     rarity = 1,
-    cost = 5,
+    cost = 4,
     config = { to_do_poker_hand = "High Card",extra = 0
     },
     loc_vars =function(self,info_queue, card) return {vars = {localize(card.ability.to_do_poker_hand, 'poker_hands'), card.ability.extra}} end,
@@ -423,7 +428,7 @@ SMODS.Joker{
     },
     pos = {x = 9, y = 0}, -- POSITION IN SPRITE SHEET
     rarity = 1,
-    cost = 5,
+    cost = 3,
     config = { extra = 1.5
     },
         ---loc_vars =function(card) return { } end,
@@ -442,69 +447,39 @@ SMODS.Joker{
     end,
 }
 
-
-
-
--- gnarled throne old code
-    --if (context.playing_card_added and self.ability.set == "Joker" and not self.debuff and context.cards and context.cards[1]) then
-    --    self.ability.extra = self.ability.extra + #context.cards
-    --    card_eval_status_text(self, 'extra', nil, nil, nil, {message = localize{type = 'variable', key = 'a_mult', vars = {self.ability.extra}}})
-    --end
-    
-    --if ((context.remove_playing_cards or context.destroying_card) and context.destroyed_cards and context.destroyed_cards[1] ) then 
-    --    self.ability.extra = self.ability.extra + #context.destroyed_cards
-    --    card_eval_status_text(self, 'extra', nil, nil, nil, {message = localize{type = 'variable', key = 'a_mult', vars = {self.ability.extra}}})
-    --end
-
-    -- if G.GAME.consumeable_usage_total and G.GAME.consumeable_usage_total.all and G.GAME.consumeable_usage_total.all > 0 then
-    --     return {
-    --        message = localize{type='variable',key='a_mult',vars={G.GAME.consumeable_usage.all}},
-    --        mult_mod = G.GAME.consumeable_usage.all
-    --    }
-    --end
-    --if context.joker_main then 
-    --    return {
-    --        message = localize{type = 'variable', key = 'a_mult',vars = {self.ability.extra}},
-    --        mult_mod = self.ability.extra
-    --    }
-    --end
-
-
-
-
--- DECK FOR TESTING
-
-SMODS.Back{ 
-    key = "test",
-    name = "Test Deck",
-    atlas = "spicy_jokers" , 
-    pos = { x = 0, y = 0 }, 
-    loc_txt = {
+if config.debug then
+    SMODS.Back{ 
+        key = "test",
         name = "Test Deck",
-        text = {
-        "This is used for debugging/testing jokers",
-        }
-    },
-    apply = function(back)
-        G.E_MANAGER:add_event(Event({
-            func = function()
-                add_joker("j_ssj_lucky_seven", nil, false, false)
-                add_joker("j_ssj_gun_joker", nil, false, false)
-                add_joker("j_ssj_joker_squad", nil, false, false)
-                add_joker("j_ssj_void", nil, false, false)
-                add_joker("j_ssj_business_joker", nil, false, false)
-                add_joker("j_ssj_antimatter_joker", nil, false, false)
-                add_joker("j_ssj_gnarled_throne", nil, false, false)
-                add_joker("j_ssj_misfire", nil, false, false)
-                add_joker("j_ssj_sus", nil, false, false)
-                add_joker("j_ssj_snr", nil, false, false)
-                local c = create_card(nil,G.consumeables, nil, nil, nil, nil, 'c_tower', 'sup')
-                                c:add_to_deck()
-                                G.consumeables:emplace(c)
-                return true
-            end
-        }))
-    end,
-}
+        atlas = "spicy_jokers" , 
+        pos = { x = 0, y = 0 }, 
+        loc_txt = {
+            name = "Test Deck",
+            text = {
+            "This is used for debugging/testing jokers",
+            }
+        },
+        apply = function(back)
+            G.E_MANAGER:add_event(Event({
+                func = function()
+                    add_joker("j_ssj_lucky_seven", nil, false, false)
+                    add_joker("j_ssj_gun_joker", nil, false, false)
+                    add_joker("j_ssj_joker_squad", nil, false, false)
+                    add_joker("j_ssj_void", nil, false, false)
+                    add_joker("j_ssj_business_joker", nil, false, false)
+                    add_joker("j_ssj_antimatter_joker", nil, false, false)
+                    add_joker("j_ssj_gnarled_throne", nil, false, false)
+                    add_joker("j_ssj_misfire", nil, false, false)
+                    add_joker("j_ssj_sus", nil, false, false)
+                    add_joker("j_ssj_snr", nil, false, false)
+                    local c = create_card(nil,G.consumeables, nil, nil, nil, nil, 'c_tower', 'sup')
+                                    c:add_to_deck()
+                                    G.consumeables:emplace(c)
+                    return true
+                end
+            }))
+        end,
+    }
+end
 ----------------------------------------------
 ------------MOD CODE END----------------------
