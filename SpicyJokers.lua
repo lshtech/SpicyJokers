@@ -2,16 +2,16 @@
 --- MOD_NAME: SpicyJokers
 --- MOD_ID: SpicyJokers
 --- MOD_AUTHOR: [Toasterobot]
---- MOD_DESCRIPTION: This mod adds 10 New jokers with unique art
+--- MOD_DESCRIPTION: This mod adds 12 New jokers with unique art
 --- PREFIX: ssj
 --- BADGE_COLOUR: 8B52A9
-
+--- VERSION: 0.5.0
 ----------------------------------------------
 ------------MOD CODE -------------------------
 
 local config = {
 
-    debug = false;
+    debug = true;
 
 }
 G.localization.misc.dictionary["k_lucky"] = "Lucky"
@@ -19,11 +19,6 @@ G.localization.misc.dictionary["k_lucky"] = "Lucky"
 
 local seven = false;
 local usedConsumables = {};
-
--- JokerDisplay mod integration
-if SMODS.Mods["JokerDisplay"] then
-    NFS.load(SMODS.current_mod.path .. "/JokerDisplayIntegration.lua")()
-end
 
 SMODS.Atlas{
     key = "spicy_jokers",
@@ -443,6 +438,91 @@ SMODS.Joker{
     end,
 }
 
+SMODS.Joker{
+    name = "Roided Joker",
+    key = 'roided',
+    loc_txt = { 
+        name = "Roided Joker",
+        text = {
+            "Sell this joker to create {C:attention}#1#{}",
+            "{C:dark_edition}negative{} {C:attention}strength{} {C:tarot}tarot{} card(s)",
+            "Increases at end of round"
+        },
+    },
+    pos = {x = 0, y = 1}, -- POSITION IN SPRITE SHEET
+    rarity = 1,
+    cost = 2,
+    config = { extra = 1
+    },
+    loc_vars =function(self,info_queue, card) return {vars = {card.ability.extra}} end,
+    
+    blueprint_compat = false,
+    eternal_compat = false,
+    discovered = true,
+    atlas = "spicy_jokers",
+    calculate = function(self, card, context)
+        if context.end_of_round and not (context.individual or context.repetition or context.blueprint) then
+            card.ability.extra =card.ability.extra + 1
+            return {
+                message = localize('k_val_up')
+            }
+        end
+
+        if context.selling_self then
+            if card.ability.extra then
+                for i = 1, card.ability.extra do
+                    G.E_MANAGER:add_event(Event({
+                        func = function() 
+                            local c = create_card(nil,G.consumeables, nil, nil, nil, nil, 'c_strength', 'sup')
+                            c:set_edition({negative = true}, true)
+                            c:add_to_deck()
+                            G.consumeables:emplace(c)
+                            return true
+                        end}))
+                end
+            end
+        end
+    end 
+}
+
+SMODS.Joker{
+    name = "Suicide King",
+    key = 'suicide_king',
+    loc_txt = { 
+        name = "Suicide King",
+        text = {
+            "When round begins,",
+            "add a glass{C:attention} King{} of {C:hearts}Hearts{}",
+            "to your hand"
+        },
+    },
+    pos = {x = 1, y = 1}, -- POSITION IN SPRITE SHEET
+    rarity = 3,
+    cost = 8,
+    config = {},
+    
+    blueprint_compat = true,
+    eternal_compat = false,
+    discovered = true,
+    atlas = "spicy_jokers",
+    calculate = function(self, card, context)
+        if context.first_hand_drawn then
+            G.E_MANAGER:add_event(Event({
+                func = function() 
+                    local _card = create_playing_card({
+                        front =  G.P_CARDS['H_K'], 
+                        center = G.P_CENTERS.m_glass}, G.hand, nil, nil, {G.C.SECONDARY_SET.Enhanced})
+                    G.GAME.blind:debuff_card(_card)
+                    G.hand:sort()
+                    if context.blueprint_card then context.blueprint_card:juice_up() else card:juice_up() end
+                    return true
+                end}))
+        end 
+    end 
+}
+
+
+-- NExt joker. Razor blade. For the next 3 discards of exactly 3 cards it removes them from your deck
 if config.debug then
     SMODS.Back{ 
         key = "test",
@@ -458,16 +538,14 @@ if config.debug then
         apply = function(back)
             G.E_MANAGER:add_event(Event({
                 func = function()
-                    add_joker("j_ssj_lucky_seven", nil, false, false)
                     add_joker("j_ssj_gun_joker", nil, false, false)
                     add_joker("j_ssj_joker_squad", nil, false, false)
-                    add_joker("j_ssj_void", nil, false, false)
-                    add_joker("j_ssj_business_joker", nil, false, false)
                     add_joker("j_ssj_antimatter_joker", nil, false, false)
                     add_joker("j_ssj_gnarled_throne", nil, false, false)
-                    add_joker("j_ssj_misfire", nil, false, false)
                     add_joker("j_ssj_sus", nil, false, false)
                     add_joker("j_ssj_snr", nil, false, false)
+                    add_joker("j_ssj_roided", nil, false, false)
+                    add_joker("j_ssj_suicide_king", nil, false, false)
                     local c = create_card(nil,G.consumeables, nil, nil, nil, nil, 'c_tower', 'sup')
                                     c:add_to_deck()
                                     G.consumeables:emplace(c)
