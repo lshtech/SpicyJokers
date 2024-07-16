@@ -1,6 +1,6 @@
 # SpicyJokers
 
-A Balatro mod that adds 10 new Jokers all with unique art done by me. With many more to be added in the future!
+A Balatro mod that adds 14 new Jokers all with unique art done by me. With many more to be added in the future!
 
 Thanks to the all the people that helped me debug on the Balatro modding discord!
 
@@ -25,6 +25,10 @@ Thanks to the all the people that helped me debug on the Balatro modding discord
   | <b>Gnarled Throne</b>| Common | +1 Mult for each card sold |
   | <b>Shocked and Rattled</b>  | Common | +5 Mult if discarded hand is hand specified <br>changes at the end of the roundd<br>(ex: Four of a Kind on 1 round then pair on next ) |
   | <b>Sisyphus</b> | Common | Stone Cards give X1.5 Mult |
+  | <b>Roided Joker</b>  | Common | Sell this joker to create 1 negative strength card. Ammount increases by 1 at end of round |
+  | <b>Suicide King</b> | Rare | At the start of each round add a permanent glass king of hearts to your hand |
+  | <bRazor blade</b>  | Uncommon | Set Discards to 1. Discarded cards are destroyed |
+  | <b>Double Barrel</b> | Uncommon | All Red Seal cards are retriggered again |
 
 
 Feel Free to message me on discord if you have any art/joker ideas for me to implement into the mod.
