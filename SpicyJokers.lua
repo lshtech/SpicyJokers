@@ -5,13 +5,13 @@
 --- MOD_DESCRIPTION: This mod adds 12 New jokers with unique art
 --- PREFIX: ssj
 --- BADGE_COLOUR: 8B52A9
---- VERSION: 0.5.0
+--- VERSION: 0.5.2
 ----------------------------------------------
 ------------MOD CODE -------------------------
 
 local config = {
 
-    debug = true;
+    debug = false;
 
 }
 G.localization.misc.dictionary["k_lucky"] = "Lucky"
@@ -402,6 +402,22 @@ SMODS.Joker{
                 colour = G.C.MULT
             }
         end
+        if context.end_of_round and not (context.individual or context.repetition or context.blueprint) then
+            local _poker_hands = {}
+            for k, v in pairs(G.GAME.hands) do
+                if v.visible then _poker_hands[#_poker_hands+1] = k end
+            end
+            
+            local old_hand = card.ability.to_do_poker_hand
+            card.ability.to_do_poker_hand = nil
+            while not card.ability.to_do_poker_hand do
+                card.ability.to_do_poker_hand = pseudorandom_element(_poker_hands, pseudoseed("snr"))
+                if card.ability.to_do_poker_hand == old_hand then card.ability.to_do_poker_hand = nil end
+            end
+            return {
+                message = card.ability.to_do_poker_hand
+            }
+        end
     end
 
 
@@ -521,8 +537,102 @@ SMODS.Joker{
     end 
 }
 
+SMODS.Joker{
+    name = "Razor Blade",
+    key = 'razor_blade',
+    loc_txt = { 
+        name = "Razor Blade",
+        text = {
+            "When {C:attention}Blind{} is selected",
+            "set discards to {C:red}1{}",
+            "Discarded cards are destroyed",
+        },
+    },
+    pos = {x = 2, y = 1}, -- POSITION IN SPRITE SHEET
+    rarity = 2,
+    cost = 8,
+    config = {},
+    
+    blueprint_compat = false,
+    eternal_compat = false,
+    discovered = true,
+    atlas = "spicy_jokers",
+    calculate = function(self, card, context)
+        if not (context.blueprint_card or card).getting_sliced and context.setting_blind then
+            ease_discard(-G.GAME.current_round.discards_left + 1, nil, true)
+        end
+        if  not context.blueprint and context.discard then
+            return {
+                message = "Sharp",
+                colour = G.C.MONEY,
+                delay = 0.45, 
+                remove = true,
+                card = card
+            }
+        end
+    end 
+}
 
--- NExt joker. Razor blade. For the next 3 discards of exactly 3 cards it removes them from your deck
+SMODS.Joker{
+    name = "Double Barrel",
+    key = 'double_barrel',
+    loc_txt = { 
+        name = "Double Barrel",
+        text = {
+            "{C:attention}Retrigger{} all",
+           "{C:red}Red{} {C:attention}Seal cards{}"
+        },
+    },
+    pos = {x = 3, y = 1}, -- POSITION IN SPRITE SHEET
+    rarity = 2,
+    cost = 8,
+    config = {},
+    
+    blueprint_compat = true, -- MAke true later
+    eternal_compat = false,
+    discovered = true,
+    atlas = "spicy_jokers",
+    calculate = function(self, card, context)
+        if context.repetition then
+            
+            if context.cardarea == G.play then -- Repeat for played cards
+                if context.other_card:get_seal() == "Red" then 
+                    return {
+                        message = localize('k_again_ex'),
+                        repetitions = 1,
+                        card = card
+                    }
+                end
+            end 
+
+            if context.end_of_round then
+                if context.cardarea == G.hand then -- Repeat for held cards at end of round (gold cards)
+                    if context.other_card:get_seal() == "Red" and
+                    (next(context.card_effects[1]) or #context.card_effects > 1) then
+                        return {
+                            message = localize('k_again_ex'),
+                            repetitions = 1,
+                            card = card
+                        }
+                    end
+                end
+            end
+
+            if context.cardarea == G.hand then -- Repeat for held cards 
+                if context.other_card:get_seal() == "Red" and
+                (next(context.card_effects[1]) or #context.card_effects > 1) then
+                    return {
+                        message = localize('k_again_ex'),
+                        repetitions = 1,
+                        card = card
+                    }
+                end
+            end
+
+        end 
+    end 
+}
+
 if config.debug then
     SMODS.Back{ 
         key = "test",
@@ -546,9 +656,14 @@ if config.debug then
                     add_joker("j_ssj_snr", nil, false, false)
                     add_joker("j_ssj_roided", nil, false, false)
                     add_joker("j_ssj_suicide_king", nil, false, false)
-                    local c = create_card(nil,G.consumeables, nil, nil, nil, nil, 'c_tower', 'sup')
-                                    c:add_to_deck()
-                                    G.consumeables:emplace(c)
+                    add_joker("j_ssj_razor_blade", nil, false, false)
+                    add_joker("j_ssj_double_barrel", nil, false, false)
+                    local c = create_card(nil,G.consumeables, nil, nil, nil, nil, 'c_chariot', 'sup')
+                    c:add_to_deck()
+                    G.consumeables:emplace(c)
+                    local c = create_card(nil,G.consumeables, nil, nil, nil, nil, 'c_deja_vu', 'sup')
+                    c:add_to_deck()
+                    G.consumeables:emplace(c)
                     return true
                 end
             }))
