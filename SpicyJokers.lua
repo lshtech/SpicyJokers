@@ -2,10 +2,10 @@
 --- MOD_NAME: SpicyJokers
 --- MOD_ID: SpicyJokers
 --- MOD_AUTHOR: [Toasterobot]
---- MOD_DESCRIPTION: This mod adds 12 New jokers with unique art
+--- MOD_DESCRIPTION: This mod adds 16 New jokers with unique art
 --- PREFIX: ssj
 --- BADGE_COLOUR: 8B52A9
---- VERSION: 0.5.2
+--- VERSION: 0.5.3
 ----------------------------------------------
 ------------MOD CODE -------------------------
 
@@ -633,6 +633,112 @@ SMODS.Joker{
     end 
 }
 
+SMODS.Joker{
+    name = "Five Head",
+    key = 'five_head',
+    loc_txt = { 
+        name = "Five Head",
+        text = {
+            "{C:chips}+#1#{} Chips for each",
+            "played {C:attention}Hand{} of 5 cards",
+            "Resets if {C:attention}Hand{} is not 5 cards",
+            "{C:inactive}(Currently {C:chips}+#2#{C:inactive} Chips)"
+        },
+    },
+    pos = {x = 4, y = 1}, -- POSITION IN SPRITE SHEET
+    rarity = 1,
+    cost = 4,
+    config = {extra = {chips = 0, chip_mod = 7}},
+    loc_vars =function(self,info_queue, card) return {vars = {card.ability.extra.chip_mod,card.ability.extra.chips }} end,
+    blueprint_compat = true, -- MAke true later
+    eternal_compat = false,
+    discovered = true,
+    atlas = "spicy_jokers",
+    calculate = function(self, card, context)
+        if context.cardarea == G.jokers then
+            if context.before then
+                if #context.full_hand == 5 and not context.blueprint then
+                    card.ability.extra.chips = card.ability.extra.chips + card.ability.extra.chip_mod
+                    return {
+                        message = localize('k_upgrade_ex'),
+                        colour = G.C.CHIPS,
+                        card = card
+                    }
+                end
+                if #context.full_hand ~= 5 and not context.blueprint then
+                    card.ability.extra.chips = 0
+                    return {
+                        card = card,
+                        message = localize('k_reset')
+                    }
+                end
+            end
+        end 
+        if context.joker_main then
+            return {
+                message = localize{type = 'variable', key = 'a_chips', vars = {card.ability.extra.chips}},
+                chip_mod = card.ability.extra.chips, 
+                colour = G.C.CHIPS
+            }
+        end
+    end 
+}
+
+SMODS.Joker{
+    name = "Coffee",
+    key = 'coffee',
+    loc_txt = { 
+        name = "Coffee",
+        text = {
+            "Upgrades played hand",
+            "for the next {C:attention}#1#{} hands"
+        },
+    },
+    pos = {x = 5, y = 1}, -- POSITION IN SPRITE SHEET
+    rarity = 2,
+    cost = 4,
+    config = {extra = { hands_left = 4}},
+    loc_vars =function(self,info_queue, card) return {vars = {card.ability.extra.hands_left}} end,
+    blueprint_compat = true, -- MAke true later
+    eternal_compat = false,
+    discovered = true,
+    atlas = "spicy_jokers",
+    calculate = function(self, card, context)
+        if context.cardarea == G.jokers then
+            if card.ability.extra.hands_left == 0 then 
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        play_sound('tarot1')
+                        card.T.r = -0.2
+                        card:juice_up(0.3, 0.4)
+                        card.states.drag.is = true
+                        card.children.center.pinch.x = true
+                        G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.3, blockable = false,
+                            func = function()
+                                    G.jokers:remove_card(self)
+                                    card:remove()
+                                    card = nil
+                                return true; end})) 
+                        return true
+                    end
+                })) 
+                return {
+                    message = "Drank",
+                    colour = G.C.RED
+                }
+            end
+            if context.before then
+                card.ability.extra.hands_left = card.ability.extra.hands_left -1
+                return {
+                    card = card,
+                    level_up = true,
+                    message = localize('k_level_up_ex')
+                }
+            end
+        end
+    end
+}
+
 if config.debug then
     SMODS.Back{ 
         key = "test",
@@ -658,6 +764,8 @@ if config.debug then
                     add_joker("j_ssj_suicide_king", nil, false, false)
                     add_joker("j_ssj_razor_blade", nil, false, false)
                     add_joker("j_ssj_double_barrel", nil, false, false)
+                    add_joker("j_ssj_five_head", nil, false, false)
+                    add_joker("j_ssj_coffee", nil, false, false)
                     local c = create_card(nil,G.consumeables, nil, nil, nil, nil, 'c_chariot', 'sup')
                     c:add_to_deck()
                     G.consumeables:emplace(c)
