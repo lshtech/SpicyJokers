@@ -2,10 +2,10 @@
 --- MOD_NAME: SpicyJokers
 --- MOD_ID: SpicyJokers
 --- MOD_AUTHOR: [Toasterobot]
---- MOD_DESCRIPTION: This mod adds 16 New jokers with unique art
+--- MOD_DESCRIPTION: This mod adds 20 New jokers with unique art
 --- PREFIX: ssj
 --- BADGE_COLOUR: 8B52A9
---- VERSION: 0.5.3
+--- VERSION: 0.5.5
 ----------------------------------------------
 ------------MOD CODE -------------------------
 
@@ -739,6 +739,141 @@ SMODS.Joker{
     end
 }
 
+SMODS.Joker{
+    name = "Negatron Don",
+    key = 'nega',
+    loc_txt = { 
+        name = "Negatron Don",
+        text = {
+            "Sell this card to make",
+            "{C:attention}joker{} to the right {C:dark_edition}negative{}",
+            
+        },
+    },
+    pos = {x = 6, y = 1}, -- POSITION IN SPRITE SHEET
+    rarity = 2,
+    cost = 10,
+    blueprint_compat = false, 
+    eternal_compat = false,
+    discovered = true,
+    atlas = "spicy_jokers",
+    calculate = function(self, card, context)
+        if context.selling_self then
+            local other_joker = nil
+            for i = 1, #G.jokers.cards do
+                if G.jokers.cards[i] == card then other_joker = G.jokers.cards[i+1] end
+            end
+
+            if other_joker and other_joker ~= card then
+                G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
+                    local edition = {negative = true}
+                    other_joker:set_edition(edition, true)
+                    card:juice_up(0.3, 0.5)
+                return true end }))
+            end
+        end
+    end
+}
+
+SMODS.Joker{
+    name = "Hornet",
+    key = 'hornet',
+    loc_txt = { 
+        name = "Hornet",
+        text = {
+            "{X:red,C:white}X#1#{} Mult",
+            "{C:inactive}Shaw!!!{}",
+            
+        },
+    },
+    pos = {x = 7, y = 1}, -- POSITION IN SPRITE SHEET
+    rarity = 1,
+    cost = 3,
+    config = {extra = 1.25},
+    loc_vars = function(self, info_queue, card)
+        return {vars = {card.ability.extra}} end,
+    blueprint_compat = false, 
+    eternal_compat = false,
+    discovered = true,
+    atlas = "spicy_jokers",
+    calculate = function(self, card, context)
+        if context.joker_main then
+            return {
+                message = localize{type = 'variable', key = 'a_xmult', vars = {card.ability.extra}},
+                Xmult_mod = card.ability.extra
+            }
+        end
+    end,
+}
+
+SMODS.Joker{
+    name = "Shredded Joker",
+    key = 'shredded',
+    loc_txt = { 
+        name = "Shredded Joker",
+        text = {
+                "{C:green}#1# in #2#{} chance to create",
+                "a {C:tarot}Fool{} card when any",
+                "{C:attention}consumable{} is used"
+        },
+    },
+    pos = {x = 8, y = 1}, -- POSITION IN SPRITE SHEET
+    rarity = 1,
+    cost = 3,
+    config = {extra = 4},
+    loc_vars = function(self, info_queue, card)
+        return {vars = {G.GAME.probabilities.normal,card.ability.extra}} end,
+    blueprint_compat = false, 
+    eternal_compat = false,
+    discovered = true,
+    atlas = "spicy_jokers",
+    calculate = function(self, card, context)
+        if context.using_consumeable then
+            if pseudorandom('shredded') < G.GAME.probabilities.normal/card.ability.extra then
+                return {
+                    G.E_MANAGER:add_event(Event({
+                        func = function() 
+                            local c = create_card(nil,G.consumeables, nil, nil, nil, nil, 'c_fool', 'sup')
+                            c:add_to_deck()
+                            G.consumeables:emplace(c)
+                            return true
+                        end}))
+                }
+            end
+        end
+    end,
+}
+
+SMODS.Joker{
+    name = "obmiJ",
+    key = 'obmij',
+    loc_txt = { 
+        name = "obmiJ",
+        text = {
+                "{C:attention}Swaps{} {C:mult}chips{} and {C:chips}mult{}",
+        },
+    },
+    pos = {x = 9, y = 1}, -- POSITION IN SPRITE SHEET
+    rarity = 1,
+    cost = 3,
+    loc_vars = function(self, info_queue, card)
+        return {vars = {G.GAME.probabilities.normal,card.ability.extra}} end,
+    blueprint_compat = false, 
+    eternal_compat = false,
+    discovered = true,
+    atlas = "spicy_jokers",
+    calculate = function(self, card, context)
+        if context.joker_main and not context.blueprint then
+            hand_chips, mult = mult, hand_chips
+            return {
+                update_hand_text({delay = 0}, {chips = hand_chips}),
+                update_hand_text({delay = 0.1}, {mult = mult}),
+                message = "Swapped"
+            }
+        end
+    end,
+}
+
 if config.debug then
     SMODS.Back{ 
         key = "test",
@@ -755,17 +890,12 @@ if config.debug then
             G.E_MANAGER:add_event(Event({
                 func = function()
                     add_joker("j_ssj_gun_joker", nil, false, false)
-                    add_joker("j_ssj_joker_squad", nil, false, false)
-                    add_joker("j_ssj_antimatter_joker", nil, false, false)
-                    add_joker("j_ssj_gnarled_throne", nil, false, false)
-                    add_joker("j_ssj_sus", nil, false, false)
-                    add_joker("j_ssj_snr", nil, false, false)
-                    add_joker("j_ssj_roided", nil, false, false)
                     add_joker("j_ssj_suicide_king", nil, false, false)
-                    add_joker("j_ssj_razor_blade", nil, false, false)
-                    add_joker("j_ssj_double_barrel", nil, false, false)
-                    add_joker("j_ssj_five_head", nil, false, false)
                     add_joker("j_ssj_coffee", nil, false, false)
+                    add_joker("j_ssj_hornet", nil, false, false)
+                    add_joker("j_ssj_shredded", nil, false, false)
+                    add_joker("j_ssj_nega", nil, false, false)
+                    add_joker("j_ssj_obmij", nil, false, false)
                     local c = create_card(nil,G.consumeables, nil, nil, nil, nil, 'c_chariot', 'sup')
                     c:add_to_deck()
                     G.consumeables:emplace(c)
@@ -778,5 +908,8 @@ if config.debug then
         end,
     }
 end
+
+-- Borrowed time -1 ante when purchased +1 ante when sold
+
 ----------------------------------------------
 ------------MOD CODE END----------------------
