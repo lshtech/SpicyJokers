@@ -29,6 +29,12 @@ Thanks to the all the people that helped me debug on the Balatro modding discord
   | <b>Suicide King</b> | Rare | At the start of each round add a permanent glass king of hearts to your hand |
   | <bRazor blade</b>  | Uncommon | Set Discards to 1. Discarded cards are destroyed |
   | <b>Double Barrel</b> | Uncommon | All Red Seal cards are retriggered again |
+  | <b>Five Head</b> | Common | +7 Chips for each played Hand of 5 cards Resets if hand is not 5 cards |
+  | <b>Coffee</b> | Uncommon | Upgrades hand played. Breaks after 4 uses |
+  | <b>Hornet</b> | Common | X1.25 Mult |
+  | <b>Shredded Joker</b> | Common | 1 in 4 chance to create a Fool card when any consumable is used |
+  | <b>Obmij</b> | Common | Swaps chips and mult |
+  
 
 
 Feel Free to message me on discord if you have any art/joker ideas for me to implement into the mod.
