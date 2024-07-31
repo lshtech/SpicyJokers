@@ -75,9 +75,6 @@ SMODS.Joker{
         },
     },
     
-    config = {
-        extra = 3
-    },
     pos = {x = 1, y = 0}, -- POSITION IN SPRITE SHEET
     rarity = 2,
     cost = 7,
@@ -125,10 +122,6 @@ SMODS.Joker{
             "with only {C:chips}1{} hand",
             "{C:inactive}(Must have room)"
             },
-        },
-        
-        config = {
-            extra = 3
         },
         pos = {x = 2, y = 0}, -- POSITION IN SPRITE SHEET
         rarity = 1,
