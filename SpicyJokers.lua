@@ -5,7 +5,7 @@
 --- MOD_DESCRIPTION: This mod adds 20 New jokers with unique art
 --- PREFIX: ssj
 --- BADGE_COLOUR: 8B52A9
---- VERSION: 0.5.5
+--- VERSION: 0.2.1
 ----------------------------------------------
 ------------MOD CODE -------------------------
 
