@@ -113,7 +113,6 @@ SMODS.Joker{
 SMODS.Joker{
     name = "Business Joker",
     key = 'business_joker',
-
     loc_txt = { 
         name = "Business Joker",
         text = {
@@ -130,6 +129,7 @@ SMODS.Joker{
     eternal_compat = false,
     discovered = true,
     atlas = "spicy_jokers",
+    config = {},
     calculate = function(self, card, context)
         if context.cardarea == G.jokers and G.GAME.current_round.hands_played == 0 and context.after and to_number(G.GAME.chips) + hand_chips * mult > to_number(G.GAME.blind.chips) then
             if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
