@@ -111,44 +111,44 @@ SMODS.Joker{
     }
 
 SMODS.Joker{
-        name = "Business Joker",
-        key = 'business_joker',
+    name = "Business Joker",
+    key = 'business_joker',
 
-        loc_txt = { 
-            name = "Business Joker",
-            text = {
-                "Create a {C:attention}Hermit{} {C:tarot}Tarot{}",
+    loc_txt = { 
+        name = "Business Joker",
+        text = {
+            "Create a {C:attention}Hermit{} {C:tarot}Tarot{}",
             "if {C:attention}round won{}",
             "with only {C:chips}1{} hand",
             "{C:inactive}(Must have room)"
-            },
         },
-        pos = {x = 2, y = 0}, -- POSITION IN SPRITE SHEET
-        rarity = 1,
-        cost = 4,
-        blueprint_compat = true,
-        eternal_compat = false,
-        discovered = true,
-        atlas = "spicy_jokers",
-        calculate = function(self, card, context)
-            if G.GAME.current_round.hands_played == 0 and context.after and G.GAME.chips + hand_chips * mult > G.GAME.blind.chips then
-                if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
-                    G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
-                    G.E_MANAGER:add_event(Event({
-                        trigger = 'before',
-                        delay = 0.2,
-                        func = (function()
-                            (context.blueprint_card or card):juice_up(0.8, 0.8)
-                                local c = create_card(nil,G.consumeables, nil, nil, nil, nil, 'c_hermit', 'sup')
-                                c:add_to_deck()
-                                G.consumeables:emplace(c)
-                                G.GAME.consumeable_buffer = 0
-                            return true
-                        end)}))
-                    card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Hermit", colour = G.C.PURPLE})
-                    end
+    },
+    pos = {x = 2, y = 0}, -- POSITION IN SPRITE SHEET
+    rarity = 1,
+    cost = 4,
+    blueprint_compat = true,
+    eternal_compat = false,
+    discovered = true,
+    atlas = "spicy_jokers",
+    calculate = function(self, card, context)
+        if context.cardarea == G.jokers and G.GAME.current_round.hands_played == 0 and context.after and to_number(G.GAME.chips) + hand_chips * mult > to_number(G.GAME.blind.chips) then
+            if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+                G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'before',
+                    delay = 0.2,
+                    func = (function()
+                        (context.blueprint_card or card):juice_up(0.8, 0.8)
+                            local c = create_card(nil,G.consumeables, nil, nil, nil, nil, 'c_hermit', 'sup')
+                            c:add_to_deck()
+                            G.consumeables:emplace(c)
+                            G.GAME.consumeable_buffer = 0
+                        return true
+                    end)}))
+                card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Hermit", colour = G.C.PURPLE})
             end
         end
+    end
 
 }
 SMODS.Joker{
