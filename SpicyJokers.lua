@@ -27,12 +27,11 @@ SMODS.Atlas{
     py = 95,
 }
 
-local function to_number_safe(x)
-    if (SMODS.Mods["Talisman"] or {}).can_load then
-        return to_number(x)
-    else
-        return x
+local function to_number(x)
+    if type(x) == 'table' and x.to_number then
+        return x:to_number()
     end
+    return x
 end
 
 ------------- JOKERS -------------------------
@@ -139,7 +138,7 @@ SMODS.Joker{
     atlas = "spicy_jokers",
     config = {},
     calculate = function(self, card, context)
-        if context.cardarea == G.jokers and G.GAME.current_round.hands_played == 0 and context.after and to_number_safe(G.GAME.chips) + to_number_safe(hand_chips) * to_number_safe(mult) > to_number_safe(G.GAME.blind.chips) then
+        if context.cardarea == G.jokers and G.GAME.current_round.hands_played == 0 and context.after and to_number(G.GAME.chips) + to_number(hand_chips) * to_number(mult) > to_number(G.GAME.blind.chips) then
             if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
                 G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
                 G.E_MANAGER:add_event(Event({
